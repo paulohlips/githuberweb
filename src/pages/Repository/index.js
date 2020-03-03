@@ -4,7 +4,7 @@ import api from "../../services/api";
 
 import { Link } from "react-router-dom";
 import Container from "../../Components/Container";
-import { Loading, Owner } from "./styles";
+import { Loading, Owner, IssueList } from "./styles";
 
 export default class Repository extends Component {
   static propTypes = {
@@ -35,16 +35,16 @@ export default class Repository extends Component {
       }
     ]);
 
-    this.setState({ repository, loading: false });
-
-    console.log(this.state.repository);
-
-    //console.log(issues);
+    this.setState({
+      repository: repository.data,
+      loading: false,
+      issues: issues.data
+    });
   }
 
   render() {
     const { repository, issues, loading } = this.state;
-    console.log("REPO", repository);
+
     if (loading) {
       return <Loading>Carregando</Loading>;
     }
@@ -52,14 +52,27 @@ export default class Repository extends Component {
       <Container>
         <Owner>
           <Link to="/">Voltar aos repositórios</Link>
-          <img
-            src={repository.data.owner.avatar_url}
-            alt={repository.data.avatar_url}
-          />
-          <h1>{repository.data.name}</h1>
-
-          <p>{repository.data.description}</p>
+          <img src={repository.owner.avatar_url} alt={repository.avatar_url} />
+          <h1>{repository.name}</h1>
+          <p>{repository.description}</p>
         </Owner>
+
+        <IssueList>
+          {issues.map(issue => (
+            <li key={String(issue.id)}>
+              <img src={issue.user.avatar_url} />
+              <div>
+                <strong>
+                  <a href={issue.user.avatar_url}>{issues.title}</a>
+                  {issues.labels.map(label => {
+                    <span key={String(label.id)}>{label.name}</span>;
+                  })}
+                </strong>
+                <p>{issue.user.login}</p>
+              </div>
+            </li>
+          ))}
+        </IssueList>
       </Container>
     );
   }
